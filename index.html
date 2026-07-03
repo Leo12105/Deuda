@@ -3,80 +3,346 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Deuda - Tía</title>
-    <link rel="stylesheet" href="style.css">
+    <title>ProyectoWb - Control de Deudas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1a1a2e;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00ffcc;
+            font-size: 2em;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: #16213e;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            color: #00ffcc;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: none;
+            background-color: #0f3460;
+            color: white;
+            font-size: 1em;
+        }
+
+        input::placeholder {
+            color: #aaa;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: #00ffcc;
+            color: #111;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #00ccaa;
+        }
+
+        .resumen {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .resumen-item {
+            background-color: #16213e;
+            border-radius: 15px;
+            padding: 20px;
+            flex: 1;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .resumen-item h3 {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+
+        .resumen-item p {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .deuda-total p { color: #ff6b6b; }
+        .pagado p { color: #00ffcc; }
+        .restante p { color: #ffd93d; }
+
+        .historial-item {
+            background-color: #0f3460;
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .historial-item .fecha {
+            color: #aaa;
+            font-size: 0.85em;
+        }
+
+        .historial-item .monto {
+            color: #00ffcc;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .historial-item .descripcion {
+            font-size: 0.95em;
+        }
+
+        .barra-progreso {
+            background-color: #0f3460;
+            border-radius: 10px;
+            height: 20px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .barra-relleno {
+            background-color: #00ffcc;
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .porcentaje {
+            text-align: center;
+            margin-top: 8px;
+            color: #00ffcc;
+            font-weight: bold;
+        }
+
+        .btn-eliminar {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 1.1em;
+            width: auto;
+            padding: 5px;
+        }
+
+        .no-pagos {
+            text-align: center;
+            color: #aaa;
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>💰 Control de Deuda con mi Tía</h1>
+
+        <h1>💰 Control de Deudas</h1>
 
         <!-- RESUMEN -->
         <div class="resumen">
-            <div class="card total">
+            <div class="resumen-item deuda-total">
                 <h3>Deuda Total</h3>
-                <p id="deudaTotal">$0.00</p>
+                <p id="totalDeuda">$0</p>
             </div>
-            <div class="card pagado">
-                <h3>Total Pagado</h3>
-                <p id="totalPagado">$0.00</p>
+            <div class="resumen-item pagado">
+                <h3>Pagado</h3>
+                <p id="totalPagado">$0</p>
             </div>
-            <div class="card restante">
+            <div class="resumen-item restante">
                 <h3>Restante</h3>
-                <p id="restante">$0.00</p>
+                <p id="totalRestante">$0</p>
             </div>
         </div>
 
         <!-- BARRA DE PROGRESO -->
-        <div class="progreso-container">
-            <div class="progreso-barra" id="barraProgreso">
-                <span id="porcentaje">0%</span>
+        <div class="card">
+            <h2>📊 Progreso</h2>
+            <div class="barra-progreso">
+                <div class="barra-relleno" id="barraRelleno" style="width: 0%"></div>
             </div>
+            <p class="porcentaje" id="porcentaje">0% pagado</p>
         </div>
 
         <!-- CONFIGURAR DEUDA -->
-        <div class="seccion">
-            <h2>📝 Configurar Deuda Total</h2>
-            <div class="form-group">
-                <input type="number" id="inputDeuda" placeholder="Monto total de la deuda">
-                <button onclick="establecerDeuda()">Establecer Deuda</button>
-            </div>
+        <div class="card">
+            <h2>💳 Configurar Deuda Total</h2>
+            <input type="number" id="inputDeuda" placeholder="Ej: 5000" />
+            <button onclick="setDeuda()">Establecer Deuda</button>
         </div>
 
-        <!-- REGISTRAR PAGO -->
-        <div class="seccion">
-            <h2>💵 Registrar un Pago</h2>
-            <div class="form-group">
-                <input type="number" id="inputPago" placeholder="Monto del pago">
-                <input type="date" id="inputFecha">
-                <input type="text" id="inputNota" placeholder="Nota (opcional)">
-                <button onclick="registrarPago()">Registrar Pago</button>
-            </div>
+        <!-- AGREGAR PAGO -->
+        <div class="card">
+            <h2>✅ Agregar Pago</h2>
+            <input type="number" id="inputMonto" placeholder="Monto pagado. Ej: 200" />
+            <input type="text" id="inputDescripcion" placeholder="Descripción. Ej: Transferencia" />
+            <input type="date" id="inputFecha" />
+            <button onclick="agregarPago()">Agregar Pago</button>
         </div>
 
-        <!-- HISTORIAL DE PAGOS -->
-        <div class="seccion">
+        <!-- HISTORIAL -->
+        <div class="card">
             <h2>📋 Historial de Pagos</h2>
-            <table id="tablaPagos">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Fecha</th>
-                        <th>Monto</th>
-                        <th>Nota</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody id="cuerpoTabla">
-                </tbody>
-            </table>
-            <p id="sinPagos">No hay pagos registrados aún.</p>
+            <div id="historial">
+                <p class="no-pagos">No hay pagos registrados aún.</p>
+            </div>
         </div>
 
-        <!-- BOTÓN BORRAR TODO -->
-        <button class="btn-borrar" onclick="borrarTodo()">🗑️ Borrar todo</button>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // Cargar datos al iniciar
+        window.onload = function() {
+            // Poner fecha de hoy por defecto
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('inputFecha').value = hoy;
+
+            actualizarUI();
+        }
+
+        // Establecer deuda total
+        function setDeuda() {
+            const monto = parseFloat(document.getElementById('inputDeuda').value);
+            if (isNaN(monto) || monto <= 0) {
+                alert('⚠️ Ingresa un monto válido');
+                return;
+            }
+            localStorage.setItem('deudaTotal', monto);
+            document.getElementById('inputDeuda').value = '';
+            actualizarUI();
+        }
+
+        // Agregar pago
+        function agregarPago() {
+            const monto = parseFloat(document.getElementById('inputMonto').value);
+            const descripcion = document.getElementById('inputDescripcion').value || 'Sin descripción';
+            const fecha = document.getElementById('inputFecha').value;
+
+            if (isNaN(monto) || monto <= 0) {
+                alert('⚠️ Ingresa un monto válido');
+                return;
+            }
+
+            if (!fecha) {
+                alert('⚠️ Selecciona una fecha');
+                return;
+            }
+
+            // Obtener pagos existentes
+            const pagos = JSON.parse(localStorage.getItem('pagos') || '[]');
+
+            // Agregar nuevo pago
+            pagos.push({
+                id: Date.now(),
+                monto: monto,
+                descripcion: descripcion,
+                fecha: fecha
+            });
+
+            localStorage.setItem('pagos', JSON.stringify(pagos));
+
+            // Limpiar campos
+            document.getElementById('inputMonto').value = '';
+            document.getElementById('inputDescripcion').value = '';
+
+            actualizarUI();
+        }
+
+        // Eliminar pago
+        function eliminarPago(id) {
+            if (!confirm('¿Eliminar este pago?')) return;
+            let pagos = JSON.parse(localStorage.getItem('pagos') || '[]');
+            pagos = pagos.filter(p => p.id !== id);
+            localStorage.setItem('pagos', JSON.stringify(pagos));
+            actualizarUI();
+        }
+
+        // Actualizar toda la interfaz
+        function actualizarUI() {
+            const deudaTotal = parseFloat(localStorage.getItem('deudaTotal') || 0);
+            const pagos = JSON.parse(localStorage.getItem('pagos') || '[]');
+
+            // Calcular total pagado
+            const totalPagado = pagos.reduce((sum, p) => sum + p.monto, 0);
+            const restante = deudaTotal - totalPagado;
+            const porcentaje = deudaTotal > 0 ? Math.min((totalPagado / deudaTotal) * 100, 100) : 0;
+
+            // Actualizar resumen
+            document.getElementById('totalDeuda').textContent = '$' + deudaTotal.toLocaleString();
+            document.getElementById('totalPagado').textContent = '$' + totalPagado.toLocaleString();
+            document.getElementById('totalRestante').textContent = '$' + Math.max(restante, 0).toLocaleString();
+
+            // Actualizar barra
+            document.getElementById('barraRelleno').style.width = porcentaje + '%';
+            document.getElementById('porcentaje').textContent = porcentaje.toFixed(1) + '% pagado';
+
+            // Actualizar historial
+            const historialDiv = document.getElementById('historial');
+
+            if (pagos.length === 0) {
+                historialDiv.innerHTML = '<p class="no-pagos">No hay pagos registrados aún.</p>';
+                return;
+            }
+
+            // Ordenar por fecha (más reciente primero)
+            pagos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            historialDiv.innerHTML = pagos.map(pago => `
+                <div class="historial-item">
+                    <div>
+                        <p class="descripcion">${pago.descripcion}</p>
+                        <p class="fecha">📅 ${formatearFecha(pago.fecha)}</p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span class="monto">+$${pago.monto.toLocaleString()}</span>
+                        <button class="btn-eliminar" onclick="eliminarPago(${pago.id})">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Formatear fecha
+        function formatearFecha(fecha) {
+            const [year, month, day] = fecha.split('-');
+            return `${day}/${month}/${year}`;
+        }
+    </script>
+
 </body>
 </html>
